@@ -1,0 +1,116 @@
+CREATE TABLE `absence` (
+  `Id` int NOT NULL,
+  `EtudiantId` varchar(50) DEFAULT NULL,
+  `Date` date DEFAULT NULL,
+  `Motif` varchar(200) DEFAULT NULL,
+  `Statut` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `EtudiantId` (`EtudiantId`),
+  CONSTRAINT `absence_ibfk_1` FOREIGN KEY (`EtudiantId`) REFERENCES `etudiant` (`INE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `admin` (
+  `Nom` varchar(50) DEFAULT NULL,
+  `Mdp` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `annee` (
+  `Id` int NOT NULL,
+  `Libelle` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `cursus` (
+  `Id` int NOT NULL,
+  `Libelle` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  CONSTRAINT `cursus_ibfk_1` FOREIGN KEY (`Id`) REFERENCES `ue` (`CursusId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `enseignant` (
+  `Id` int NOT NULL,
+  `Nom` varchar(50) DEFAULT NULL,
+  `Prenom` varchar(50) DEFAULT NULL,
+  `Sexe` char(1) DEFAULT NULL,
+  `Mdp` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `epreuve` (
+  `Id` int NOT NULL,
+  `Nom` varchar(50) DEFAULT NULL,
+  `GroupeId` int DEFAULT NULL,
+  `UeId` int DEFAULT NULL,
+  `Coefficient` float DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `GroupeId` (`GroupeId`),
+  KEY `UeId` (`UeId`),
+  CONSTRAINT `epreuve_ibfk_1` FOREIGN KEY (`GroupeId`) REFERENCES `groupe` (`Id`),
+  CONSTRAINT `epreuve_ibfk_2` FOREIGN KEY (`UeId`) REFERENCES `ue` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `etudiant` (
+  `INE` varchar(50) NOT NULL,
+  `Nom` varchar(50) DEFAULT NULL,
+  `Prenom` varchar(50) DEFAULT NULL,
+  `Sexe` char(1) DEFAULT NULL,
+  `Mdp` varchar(50) DEFAULT NULL,
+  `CursusId` int DEFAULT NULL,
+  `AnneeId` int DEFAULT NULL,
+  PRIMARY KEY (`INE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `etudiantpargroupe` (
+  `EtudiantId` varchar(50) NOT NULL,
+  `GroupeId` int NOT NULL,
+  PRIMARY KEY (`EtudiantId`,`GroupeId`),
+  KEY `GroupeId` (`GroupeId`),
+  CONSTRAINT `etudiantpargroupe_ibfk_1` FOREIGN KEY (`EtudiantId`) REFERENCES `etudiant` (`INE`),
+  CONSTRAINT `etudiantpargroupe_ibfk_2` FOREIGN KEY (`GroupeId`) REFERENCES `groupe` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `groupe` (
+  `Id` int NOT NULL,
+  `Nom` varchar(50) DEFAULT NULL,
+  `CursusId` int DEFAULT NULL,
+  `AnneeId` int DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  CONSTRAINT `groupe_ibfk_1` FOREIGN KEY (`Id`) REFERENCES `groupeparue` (`GroupeId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `groupeparue` (
+  `GroupeId` int NOT NULL,
+  `UeId` int NOT NULL,
+  `EnseignantId` int DEFAULT NULL,
+  PRIMARY KEY (`GroupeId`,`UeId`),
+  KEY `UeId` (`UeId`),
+  KEY `EnseignantId` (`EnseignantId`),
+  CONSTRAINT `groupeparue_ibfk_1` FOREIGN KEY (`GroupeId`) REFERENCES `groupe` (`Id`),
+  CONSTRAINT `groupeparue_ibfk_2` FOREIGN KEY (`UeId`) REFERENCES `groupe` (`Id`),
+  CONSTRAINT `groupeparue_ibfk_3` FOREIGN KEY (`EnseignantId`) REFERENCES `enseignant` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `note` (
+  `EtudiantId` varchar(50) NOT NULL,
+  `EpreuveId` int NOT NULL,
+  `Note` int DEFAULT NULL,
+  PRIMARY KEY (`EtudiantId`,`EpreuveId`),
+  KEY `EpreuveId` (`EpreuveId`),
+  CONSTRAINT `note_ibfk_1` FOREIGN KEY (`EpreuveId`) REFERENCES `epreuve` (`Id`),
+  CONSTRAINT `note_ibfk_2` FOREIGN KEY (`EtudiantId`) REFERENCES `etudiant` (`INE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `ue` (
+  `Id` int NOT NULL,
+  `ResponsableId` int DEFAULT NULL,
+  `Nom` varchar(50) DEFAULT NULL,
+  `AnneeId` int DEFAULT NULL,
+  `CursusId` int DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `ResponsableId` (`ResponsableId`),
+  KEY `CursusId` (`CursusId`),
+  KEY `AnneeId` (`AnneeId`),
+  CONSTRAINT `ue_ibfk_1` FOREIGN KEY (`ResponsableId`) REFERENCES `enseignant` (`Id`),
+  CONSTRAINT `ue_ibfk_2` FOREIGN KEY (`CursusId`) REFERENCES `cursus` (`Id`),
+  CONSTRAINT `ue_ibfk_3` FOREIGN KEY (`AnneeId`) REFERENCES `annee` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
